@@ -15,7 +15,7 @@ namespace DPSF
         /// </summary>
         static DPSFDefaultSettings()
         {
-            ResetToDefaults();            
+            ResetToDefaults();
         }
 
         /// <summary>
@@ -73,9 +73,7 @@ namespace DPSF
 		/// <param name="graphicsDevice">The Graphics Device used to initialize the BasicEffect.
 		/// <para>NOTE: This is only used the first time that this function is called.</para></param>
 		internal static BasicEffect GetSharedBasicEffect(GraphicsDevice graphicsDevice)
-		{
-			return _basicEffect ?? (_basicEffect = new BasicEffect(graphicsDevice));
-		}
+			=> _basicEffect ?? (_basicEffect = new BasicEffect(graphicsDevice));
     	private static BasicEffect _basicEffect = null;
 
 		/// <summary>
@@ -84,15 +82,13 @@ namespace DPSF
 		/// <param name="graphicsDevice">The Graphics Device used to initialize the AlphaTestEffect.
 		/// <para>NOTE: This is only used the first time that this function is called.</para></param>
 		internal static AlphaTestEffect GetSharedAlphaTestEffect(GraphicsDevice graphicsDevice)
-		{
-			return _alphaTestEffect ?? (_alphaTestEffect = new AlphaTestEffect(graphicsDevice));
-		}
+			=> _alphaTestEffect ?? (_alphaTestEffect = new AlphaTestEffect(graphicsDevice));
     	private static AlphaTestEffect _alphaTestEffect = null;
 
 	    /// <summary>
 	    /// Get and set if DPSF Debug Warning Exceptions should be thrown or not.
 	    /// <para>These exceptions are typically thrown as a warning to the user that they do not have DPSF configured ideally.</para>
-	    /// <para>This will only return true (default) if we are running in Debug mode (i.e. the DEBUG compilation symbol is defined) and a debugger is attached. 
+	    /// <para>This will only return true (default) if we are running in Debug mode (i.e. the DEBUG compilation symbol is defined) and a debugger is attached.
 	    /// This is done to prevent these exceptions from being thrown when software compiled in Debug mode is released.</para>
 	    /// </summary>
 	    public static bool ThrowDebugWarningExceptions

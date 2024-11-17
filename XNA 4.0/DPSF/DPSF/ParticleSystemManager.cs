@@ -15,11 +15,11 @@ namespace DPSF
 #if (WINDOWS)
     [Serializable]
 #endif
-    public class ParticleSystemManager
+    public abstract class ParticleSystemManager
     {
         // List of the Particle Systems being Managed by this Manager
-        private List<IDPSFParticleSystem> mcParticleSystemListSortedByUpdateOrder = new List<IDPSFParticleSystem>();
-        private List<IDPSFParticleSystem> mcParticleSystemListSortedByDrawOrder = new List<IDPSFParticleSystem>();
+        protected readonly List<IDPSFParticleSystem> mcParticleSystemListSortedByUpdateOrder = [];
+        protected readonly List<IDPSFParticleSystem> mcParticleSystemListSortedByDrawOrder = [];
 
         // Variables used to control if Updates and Draws are Performed or not
         private bool mbPerformUpdates = true;
@@ -37,20 +37,18 @@ namespace DPSF
         private int miUpdatesPerSecond = 0;
         private bool mbUseManagersUpdatesPerSecond = true;
 
-		/// <summary>
-		/// Handle to the particle system whose Update() function is currently being called.
-		/// We need this in case a PS removes itself from the Manager during its Update() function.
-		/// </summary>
-		private IDPSFParticleSystem _particleSystemBeingUpdated = null;
-		private bool _isParticleSystemBeingUpdatedRemovedFromManager = false;
+        /// <summary>
+        /// Handle to the particle system whose Update() function is currently being called.
+        /// We need this in case a PS removes itself from the Manager during its Update() function.
+        /// </summary>
+        private IDPSFParticleSystem _particleSystemBeingUpdated = null;
+        private bool _isParticleSystemBeingUpdatedRemovedFromManager = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParticleSystemManager"/> class.
         /// </summary>
         public ParticleSystemManager()
-        {
-            this.UpdatesPerSecond = DPSFDefaultSettings.UpdatesPerSecond;
-        }
+            => this.UpdatesPerSecond = DPSFDefaultSettings.UpdatesPerSecond;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParticleSystemManager"/> class, copying the settings of the given Particle System Manager.
@@ -58,9 +56,7 @@ namespace DPSF
         /// <param name="managerToCopy">The Particle System Manager to copy from.</param>
         public ParticleSystemManager(ParticleSystemManager managerToCopy)
             : this()
-        {
-            CopyFrom(managerToCopy);
-        }
+            => CopyFrom(managerToCopy);
 
         /// <summary>
         /// Copies the given DPSF Particle System Manager's information into this Manager.
@@ -96,10 +92,10 @@ namespace DPSF
         {
             // If inheriting DrawableGameComponent
 #if (DPSFAsDrawableGameComponent)
-            get { return true; }
+            get => true;
             // Else not inheriting DrawableGameComponent
 #else
-            get { return false; }
+            get => false;
 #endif
         }
 
@@ -108,19 +104,19 @@ namespace DPSF
         /// </summary>
         public bool Enabled
         {
-            get { return mbPerformUpdates; }
-            set { mbPerformUpdates = true; }
+            get => mbPerformUpdates;
+            set => mbPerformUpdates = true;
         }
 
         /// <summary>
         /// Get / Set if this Particle Systems should be drawn or not.
-        /// <para>NOTE: Setting this to false causes the particle systems' Draw() function to not be called, including the 
+        /// <para>NOTE: Setting this to false causes the particle systems' Draw() function to not be called, including the
         /// particle systems' BeforeDraw() and AfterDraw() functions.</para>
         /// </summary>
         public bool Visible
         {
-            get { return mbPerfomDraws; }
-            set { mbPerfomDraws = value; }
+            get => mbPerfomDraws;
+            set => mbPerfomDraws = value;
         }
 
         /// <summary>
@@ -130,11 +126,10 @@ namespace DPSF
         /// </summary>
         public bool SimulationSpeedIsEnabled
         {
-            get { return mbUseManagersSimulationSpeed; }
-            set 
-            { 
-                mbUseManagersSimulationSpeed = value; 
-            
+            get => mbUseManagersSimulationSpeed;
+            set
+            {
+                mbUseManagersSimulationSpeed = value;
                 // Apply the Particle System Manager's Simulation Speed to all of the particle systems
                 if (mbUseManagersSimulationSpeed)
                     SimulationSpeed = SimulationSpeed;
@@ -148,11 +143,10 @@ namespace DPSF
         /// </summary>
         public bool UpdatesPerSecondIsEnabled
         {
-            get { return mbUseManagersUpdatesPerSecond; }
-            set 
-            { 
+            get => mbUseManagersUpdatesPerSecond;
+            set
+            {
                 mbUseManagersUpdatesPerSecond = value;
-
                 // Apply the Particle System Manager's Updates Per Second to all of the particle systems
                 if (mbUseManagersUpdatesPerSecond)
                     UpdatesPerSecond = UpdatesPerSecond;
@@ -160,18 +154,18 @@ namespace DPSF
         }
 
         /// <summary>
-        /// Get / Set how fast the Particle System Simulations should run. 
+        /// Get / Set how fast the Particle System Simulations should run.
         /// <para>Example: 1.0 = normal speed, 0.5 = half speed, 2.0 = double speed.</para>
         /// <para>NOTE: This sets the SimulationSpeed property of each individual Particle
         /// System in this Manager to the given value. It will also set a particle system's
-        /// Simulation Speed when the particle system is re-initialized, 
+        /// Simulation Speed when the particle system is re-initialized,
         /// and when a new Particle System is added to the Manager in the future.</para>
         /// <para>NOTE: Setting this property only has an effect if the SimulationSpeedIsEnabled property is true.</para>
         /// <para>NOTE: This will be set to zero if a negative value is specified.</para>
         /// </summary>
         public float SimulationSpeed
         {
-            get { return mfSimulationSpeed; }
+            get => mfSimulationSpeed;
             set
             {
                 // If an invalid Simulation Speed was specified
@@ -195,10 +189,10 @@ namespace DPSF
         }
 
         /// <summary>
-        /// Get / Set how often the Particle Systems should be Updated. 
+        /// Get / Set how often the Particle Systems should be Updated.
         /// <para>NOTE: This sets the UpdatesPerSecond property of each individual Particle
         /// System in this Manager to the given value. It will also set a particle system's
-        /// Updates Per Second when the particle system is re-initialized, 
+        /// Updates Per Second when the particle system is re-initialized,
         /// and when a new Particle System is added to the Manager in the future.</para>
         /// <para>NOTE: Setting this property only has an effect if the UpdatesPerSecondIsEnabled property is true.</para>
         /// <para>NOTE: A value of zero means update the particle systems every time Update() is called.</para>
@@ -206,7 +200,7 @@ namespace DPSF
         /// </summary>
         public int UpdatesPerSecond
         {
-            get { return miUpdatesPerSecond; }
+            get => miUpdatesPerSecond;
             set
             {
                 // If an invalid Updates Per Second was specified
@@ -240,11 +234,15 @@ namespace DPSF
                 int iActiveParticleCount = 0;
 
                 // Loop through all of the Particle Systems
-                int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-                for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+                for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
                 {
-                    // Add this Particle System's Active Particles to the count
-                    iActiveParticleCount += mcParticleSystemListSortedByUpdateOrder[iIndex].TotalNumberOfActiveParticles;
+                    try
+                    {
+                        // Add this Particle System's Active Particles to the count
+                        iActiveParticleCount += mcParticleSystemListSortedByUpdateOrder[iIndex].TotalNumberOfActiveParticles;
+                    }
+                    catch
+                    { break; }
                 }
 
                 // Return the Total Number of Active Particles
@@ -265,11 +263,15 @@ namespace DPSF
                 int iActiveAndVisibleParticleCount = 0;
 
                 // Loop through all of the Particle Systems
-                int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-                for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+                for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
                 {
-                    // Add this Particle System's Active and Visible Particles to the count
-                    iActiveAndVisibleParticleCount += mcParticleSystemListSortedByUpdateOrder[iIndex].TotalNumberOfParticlesBeingDrawn;
+                    try
+                    {
+                        // Add this Particle System's Active and Visible Particles to the count
+                        iActiveAndVisibleParticleCount += mcParticleSystemListSortedByUpdateOrder[iIndex].TotalNumberOfParticlesBeingDrawn;
+                    }
+                    catch
+                    { break; }
                 }
 
                 // Return the Total Number of Particles being Drawn
@@ -288,11 +290,15 @@ namespace DPSF
                 int iNumberOfParticlesAllocatedInMemory = 0;
 
                 // Loop through all of the Particle Systems
-                int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-                for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+                for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
                 {
-                    // Add this Particle System's Active and Visible Particles to the count
-                    iNumberOfParticlesAllocatedInMemory += mcParticleSystemListSortedByUpdateOrder[iIndex].TotalNumberOfParticlesAllocatedInMemory;
+                    try
+                    {
+                        // Add this Particle System's Active and Visible Particles to the count
+                        iNumberOfParticlesAllocatedInMemory += mcParticleSystemListSortedByUpdateOrder[iIndex].TotalNumberOfParticlesAllocatedInMemory;
+                    }
+                    catch
+                    { break; }
                 }
 
                 // Return the Total Number of Particles Allocated In Memory
@@ -315,22 +321,25 @@ namespace DPSF
         /// <summary>
         /// Sets each individual Particle Systems' Simulation Speed to the specified Simulation Speed.
         /// </summary>
-        /// <param name="fSimulationSpeed">The new Simulation Speed that all Particle Systems 
+        /// <param name="fSimulationSpeed">The new Simulation Speed that all Particle Systems
         /// currently in this Manager should have</param>
         public void SetSimulationSpeedForAllParticleSystems(float fSimulationSpeed)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
+                // Loop through all of the Particle Systems
                 // If this Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.IsInitialized)
+                try
                 {
-                    // Set this Particle System's Simulation Speed
-                    particleSystem.SimulationSpeed = fSimulationSpeed;
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.IsInitialized)
+                    {
+                        // Set this Particle System's Simulation Speed
+                        particleSystem.SimulationSpeed = fSimulationSpeed;
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -341,18 +350,21 @@ namespace DPSF
         /// currently in this Manager should have</param>
         public void SetUpdatesPerSecondForAllParticleSystems(int iUpdatesPerSecond)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
-                // If this Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.IsInitialized)
+                try
                 {
-                    // Set this Particle System's Simulation Speed
-                    particleSystem.UpdatesPerSecond = iUpdatesPerSecond;
+                    // Loop through all of the Particle Systems
+                    // If this Particle System is Initialized
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.IsInitialized)
+                    {
+                        // Set this Particle System's Simulation Speed
+                        particleSystem.UpdatesPerSecond = iUpdatesPerSecond;
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -362,18 +374,21 @@ namespace DPSF
         /// <param name="performanceProfilingIsEnabled">Set if Performance Profiling should be enabled or not.</param>
         public void SetPerformanceProfilingIsEnabledForAllParticleSystems(bool performanceProfilingIsEnabled)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
-                // If this Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.IsInitialized)
+                try
                 {
-                    // Update its Camera Position
-                    particleSystem.PerformanceProfilingIsEnabled = performanceProfilingIsEnabled;
+                    // Loop through all of the Particle Systems
+                    // If this Particle System is Initialized
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.IsInitialized)
+                    {
+                        // Update its Camera Position
+                        particleSystem.PerformanceProfilingIsEnabled = performanceProfilingIsEnabled;
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -386,18 +401,21 @@ namespace DPSF
         /// <param name="cProjection">The Projection Matrix</param>
         public void SetWorldViewProjectionMatricesForAllParticleSystems(Matrix cWorld, Matrix cView, Matrix cProjection)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
+                // Loop through all of the Particle Systems
                 // If this Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.IsInitialized)
+                try
                 {
-                    // Set the World, View, and Projection Matrices for this Particle System
-                    particleSystem.SetWorldViewProjectionMatrices(cWorld, cView, cProjection);
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.IsInitialized)
+                    {
+                        // Set the World, View, and Projection Matrices for this Particle System
+                        particleSystem.SetWorldViewProjectionMatrices(cWorld, cView, cProjection);
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -407,18 +425,21 @@ namespace DPSF
         /// <param name="sTransformationMatrix">The Transformation Matrix to apply to the Sprite Particle Systems</param>
         public void SetTransformationMatrixForAllSpriteParticleSystems(Matrix sTransformationMatrix)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; iIndex++)
             {
+                // Loop through all of the Particle Systems
                 // If this is a Sprite Particle System and it is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.ParticleType == ParticleTypes.Sprite && particleSystem.IsInitialized)
+                try
                 {
-                    // Set the Transformation Matrix for this Particle System
-                    particleSystem.SpriteBatchSettings.TransformationMatrix = sTransformationMatrix;
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.ParticleType == ParticleTypes.Sprite && particleSystem.IsInitialized)
+                    {
+                        // Set the Transformation Matrix for this Particle System
+                        particleSystem.SpriteBatchSettings.TransformationMatrix = sTransformationMatrix;
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -429,18 +450,21 @@ namespace DPSF
         /// <param name="cameraPosition">The current position of the Camera.</param>
         public void SetCameraPositionForAllParticleSystems(Vector3 cameraPosition)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
+                // Loop through all of the Particle Systems
                 // If this Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.IsInitialized)
+                try
                 {
-                    // Update its Camera Position
-                    particleSystem.SetCameraPosition(cameraPosition);
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.IsInitialized)
+                    {
+                        // Update its Camera Position
+                        particleSystem.SetCameraPosition(cameraPosition);
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -450,18 +474,21 @@ namespace DPSF
         /// <param name="isEnabled">If the particle systems should be enabled or not.</param>
         public void SetEnabledStateForAllParticleSystems(bool isEnabled)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
+                // Loop through all of the Particle Systems
                 // If this Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.IsInitialized)
+                try
                 {
-                    // Update its Enabled state.
-                    particleSystem.Enabled = isEnabled;
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.IsInitialized)
+                    {
+                        // Update its Enabled state.
+                        particleSystem.Enabled = isEnabled;
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -471,18 +498,21 @@ namespace DPSF
         /// <param name="isVisible">If the particle systems should be visible or not.</param>
         public void SetVisibleStateForAllParticleSystems(bool isVisible)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
+                // Loop through all of the Particle Systems
                 // If this Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.IsInitialized)
+                try
                 {
-                    // Update its Visible state.
-                    particleSystem.Visible = isVisible;
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.IsInitialized)
+                    {
+                        // Update its Visible state.
+                        particleSystem.Visible = isVisible;
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -493,19 +523,22 @@ namespace DPSF
         /// <param name="isVisible">If the particle systems should be visible or not.</param>
         public void SetEnabledAndVisibleStatesForAllParticleSystems(bool isEnabled, bool isVisible)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
+                // Loop through all of the Particle Systems
                 // If this Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.IsInitialized)
+                try
                 {
-                    // Update its Enabled and Visible state.
-                    particleSystem.Enabled = isEnabled;
-                    particleSystem.Visible = isVisible;
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.IsInitialized)
+                    {
+                        // Update its Enabled and Visible state.
+                        particleSystem.Enabled = isEnabled;
+                        particleSystem.Visible = isVisible;
+                    }
                 }
+                catch
+                { break; }
             }
         }
 
@@ -515,10 +548,10 @@ namespace DPSF
         /// <param name="cParticleSystemToFind">The Particle System to look for</param>
         /// <returns>Returns true if the given Particle System is in the Manager, false if not.</returns>
         public bool ContainsParticleSystem(IDPSFParticleSystem cParticleSystemToFind)
-        {
+            // {
             // Return if the Particle System is in the List or not
-            return mcParticleSystemListSortedByUpdateOrder.Contains(cParticleSystemToFind);
-        }
+            => mcParticleSystemListSortedByUpdateOrder.Contains(cParticleSystemToFind);
+        // }
 
         /// <summary>
         /// Returns true if the Particle System with the given ID is in the Manager, false if not.
@@ -528,15 +561,19 @@ namespace DPSF
         public bool ContainsParticleSystem(int iIDOfParticleSystemToFind)
         {
             // Loop through all of the Particle Systems
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
                 // If this is the Particle System we are looking for
-                if (mcParticleSystemListSortedByUpdateOrder[iIndex].ID == iIDOfParticleSystemToFind)
+                try
                 {
-                    // Return that the Particle System is in this Manager
-                    return true;
+                    if (mcParticleSystemListSortedByUpdateOrder[iIndex].ID == iIDOfParticleSystemToFind)
+                    {
+                        // Return that the Particle System is in this Manager
+                        return true;
+                    }
                 }
+                catch
+                { break; }
             }
 
             // Return that the Particle System was not found
@@ -552,8 +589,8 @@ namespace DPSF
         public void AddParticleSystem(IDPSFParticleSystem cParticleSystemToAdd)
         {
             // If an invalid particle system was given, throw an exception indicating it
-            if (cParticleSystemToAdd == null)
-                throw new DPSFArgumentNullException("cParticleSystemToAdd", "A particle system with a value of null cannot be added to the particle system manager.");
+            // if (cParticleSystemToAdd == null)
+            //     throw new DPSFArgumentNullException("cParticleSystemToAdd", "A particle system with a value of null cannot be added to the particle system manager.");
 
             // Add the Particle System to both Lists
             mcParticleSystemListSortedByUpdateOrder.Add(cParticleSystemToAdd);
@@ -580,15 +617,15 @@ namespace DPSF
         public bool RemoveParticleSystem(IDPSFParticleSystem cParticleSystemToRemove)
         {
             // If an invalid particle system was given, throw an exception indicating it
-            if (cParticleSystemToRemove == null)
-                throw new DPSFArgumentNullException("cParticleSystemToRemove", "A particle system with a value of null cannot be removed from the particle system manager.");
+            // if (cParticleSystemToRemove == null)
+            //     throw new DPSFArgumentNullException("cParticleSystemToRemove", "A particle system with a value of null cannot be removed from the particle system manager.");
 
-			// If the particle system being removed is actually removing itself right now from its Update() function which this PS Manager just called.
-			if (cParticleSystemToRemove == _particleSystemBeingUpdated)
-			{
-				// Record that the PS being Updated right now has been removed from this Manager.
-				_isParticleSystemBeingUpdatedRemovedFromManager = true;
-			}
+            // If the particle system being removed is actually removing itself right now from its Update() function which this PS Manager just called.
+            if (cParticleSystemToRemove == _particleSystemBeingUpdated)
+            {
+                // Record that the PS being Updated right now has been removed from this Manager.
+                _isParticleSystemBeingUpdatedRemovedFromManager = true;
+            }
 
             // Remove the Event Handlers we attached to the Particle System
             cParticleSystemToRemove.UpdateOrderChanged -= new EventHandler<EventArgs>(ParticleSystem_UpdateOrderChanged);
@@ -607,19 +644,22 @@ namespace DPSF
         /// <returns>Returns true if the Particle System was found and removed, false if it was not found.</returns>
         public bool RemoveParticleSystem(int iIDOfParticleSystemToRemove)
         {
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
+                // Loop through all of the Particle Systems
                 // If this is the Particle System to remove
-                particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
-                if (particleSystem.ID == iIDOfParticleSystemToRemove)
+                try
                 {
-                    // Remove this Particle System from the Particle System Manager
-                    // NOTE: We call the other Remove function since it removes the Event Handlers as well
-                    return RemoveParticleSystem(particleSystem);
+                    IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (particleSystem.ID == iIDOfParticleSystemToRemove)
+                    {
+                        // Remove this Particle System from the Particle System Manager
+                        // NOTE: We call the other Remove function since it removes the Event Handlers as well
+                        return RemoveParticleSystem(particleSystem);
+                    }
                 }
+                catch
+                { break; }
             }
 
             // Return that the Particle System was not found
@@ -638,8 +678,7 @@ namespace DPSF
             // Particle System Manager.
 
             // Loop through all of the Particle Systems, in reverse order since we are removing from the list we are iterating through
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = (iNumberOfParticleSystems - 1); iIndex >= 0; iIndex--)
+            for (int iIndex = mcParticleSystemListSortedByUpdateOrder.Count - 1; iIndex >= 0; --iIndex)
             {
                 // Remove this Particle System
                 RemoveParticleSystem(mcParticleSystemListSortedByUpdateOrder[iIndex]);
@@ -661,11 +700,15 @@ namespace DPSF
         public void AutoInitializeAllParticleSystems(GraphicsDevice cGraphicsDevice, ContentManager cContentManager, SpriteBatch cSpriteBatch)
         {
             // Loop through all of the Particle Systems
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
                 // AutoInitialize this Particle System
-                mcParticleSystemListSortedByUpdateOrder[iIndex].AutoInitialize(cGraphicsDevice, cContentManager, cSpriteBatch);
+                try
+                {
+                    mcParticleSystemListSortedByUpdateOrder[iIndex].AutoInitialize(cGraphicsDevice, cContentManager, cSpriteBatch);
+                }
+                catch (ArgumentOutOfRangeException)
+                { break; }
             }
         }
 
@@ -675,11 +718,15 @@ namespace DPSF
         public void DestroyAllParticleSystems()
         {
             // Loop through all of the Particle Systems
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByUpdateOrder.Count; ++iIndex)
             {
                 // Destroy this Particle System
-                mcParticleSystemListSortedByUpdateOrder[iIndex].Destroy();
+                try
+                {
+                    mcParticleSystemListSortedByUpdateOrder[iIndex].Destroy();
+                }
+                catch (ArgumentOutOfRangeException)
+                { break; }
             }
         }
 
@@ -697,13 +744,11 @@ namespace DPSF
         /// Returns a Linked List of handles to the Particle Systems in this Manager
         /// </summary>
         public List<IDPSFParticleSystem> ParticleSystems
-        {
-            get { return mcParticleSystemListSortedByUpdateOrder; }
-        }
+            => mcParticleSystemListSortedByUpdateOrder;
 
         /// <summary>
         /// Updates all of the Particle Systems.
-        /// <para>NOTE: This will only Update the Particle Systems if they do not inherit from DrawableGameComponent, 
+        /// <para>NOTE: This will only Update the Particle Systems if they do not inherit from DrawableGameComponent,
         /// since if they do they will be updated automatically by the Game object.</para>
         /// </summary>
         /// <param name="fElapsedTimeInSeconds">The amount of Time in seconds that has passed since
@@ -731,73 +776,78 @@ namespace DPSF
         /// the last Update</param>
         public void UpdateAllParticleSystemsForced(float fElapsedTimeInSeconds)
         {
-            // If Updates should not be performed
-            if (!Enabled)
+            try
             {
-                // Exit without doing any Updates
-                return;
-            }
-
-            // If the Particle System List needs to be resorted before Updating
-            if (mbAParticleSystemsUpdateOrderWasChanged)
-            {
-                // Resort the Particle System List
-                SortParticleSystemsByUpdateOrderList();
-
-                // Record that the Particle System List is now sorted
-                mbAParticleSystemsUpdateOrderWasChanged = false;
-            }
-
-            // Reset how long it takes to Update all particle systems
-            TotalPerformanceTimeToDoUpdatesInMilliseconds = 0;
-
-			// Reset the variables used for determining if a PS removed itself from the PS Manager during its Update() function call.
-			ResetParticleSystemBeingUpdatedVariables();
-
-            // Loop through all of the Particle Systems
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
-            {
-                // If the Particle System is Initialized
-				_particleSystemBeingUpdated = mcParticleSystemListSortedByUpdateOrder[iIndex];
-				if (_particleSystemBeingUpdated.IsInitialized)
+                // If Updates should not be performed
+                if (!Enabled)
                 {
-                    // Update the Particle System
-					_particleSystemBeingUpdated.Update(fElapsedTimeInSeconds);
-
-                    // Add how long it took to update this particle system to the cumulative total
-					TotalPerformanceTimeToDoUpdatesInMilliseconds += _particleSystemBeingUpdated.PerformanceTimeToDoUpdateInMilliseconds;
-
-					// Updating the particle system potentially may have removed the particle system (or others)
-					// from the particle system manager, so make sure we don't go outside of the array bounds.
-					iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
-
-					// If the particle system being updated to remove itself from the PS Manager.
-					if (_isParticleSystemBeingUpdatedRemovedFromManager)
-					{
-						// Decrement our PS index so that the next PS doesn't get skipped, as it will now have this PS's index.
-						iIndex--;
-						_isParticleSystemBeingUpdatedRemovedFromManager = false;
-					}
+                    // Exit without doing any Updates
+                    return;
                 }
-            }
 
-			// Reset the PS Update variables now that we are done updating the Particle Systems.
-			ResetParticleSystemBeingUpdatedVariables();
+                // If the Particle System List needs to be resorted before Updating
+                if (mbAParticleSystemsUpdateOrderWasChanged)
+                {
+                    // Resort the Particle System List
+                    SortParticleSystemsByUpdateOrderList();
+
+                    // Record that the Particle System List is now sorted
+                    mbAParticleSystemsUpdateOrderWasChanged = false;
+                }
+
+                // Reset how long it takes to Update all particle systems
+                TotalPerformanceTimeToDoUpdatesInMilliseconds = 0;
+
+                // Reset the variables used for determining if a PS removed itself from the PS Manager during its Update() function call.
+                ResetParticleSystemBeingUpdatedVariables();
+
+                // Loop through all of the Particle Systems
+                int iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
+                for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+                {
+                    // If the Particle System is Initialized
+                    _particleSystemBeingUpdated = mcParticleSystemListSortedByUpdateOrder[iIndex];
+                    if (_particleSystemBeingUpdated.IsInitialized)
+                    {
+                        // Update the Particle System
+                        _particleSystemBeingUpdated.Update(fElapsedTimeInSeconds);
+
+                        // Add how long it took to update this particle system to the cumulative total
+                        TotalPerformanceTimeToDoUpdatesInMilliseconds += _particleSystemBeingUpdated.PerformanceTimeToDoUpdateInMilliseconds;
+
+                        // Updating the particle system potentially may have removed the particle system (or others)
+                        // from the particle system manager, so make sure we don't go outside of the array bounds.
+                        iNumberOfParticleSystems = mcParticleSystemListSortedByUpdateOrder.Count;
+
+                        // If the particle system being updated to remove itself from the PS Manager.
+                        if (_isParticleSystemBeingUpdatedRemovedFromManager)
+                        {
+                            // Decrement our PS index so that the next PS doesn't get skipped, as it will now have this PS's index.
+                            iIndex--;
+                            _isParticleSystemBeingUpdatedRemovedFromManager = false;
+                        }
+                    }
+                }
+
+                // Reset the PS Update variables now that we are done updating the Particle Systems.
+                ResetParticleSystemBeingUpdatedVariables();
+            }
+            catch
+            { }
         }
 
-		/// <summary>
-		/// Resets the variables used for determining if a PS removed itself from the PS Manager during its Update() function call.
-		/// </summary>
-		private void ResetParticleSystemBeingUpdatedVariables()
-		{
-			_particleSystemBeingUpdated = null;
-			_isParticleSystemBeingUpdatedRemovedFromManager = false;
-		}
+        /// <summary>
+        /// Resets the variables used for determining if a PS removed itself from the PS Manager during its Update() function call.
+        /// </summary>
+        private void ResetParticleSystemBeingUpdatedVariables()
+        {
+            _particleSystemBeingUpdated = null;
+            _isParticleSystemBeingUpdatedRemovedFromManager = false;
+        }
 
         /// <summary>
         /// Draws all of the Particle Systems.
-        /// <para>NOTE: This will only Draw the Particle Systems if they do not inherit from DrawableGameComponent, 
+        /// <para>NOTE: This will only Draw the Particle Systems if they do not inherit from DrawableGameComponent,
         /// since if they do they will be drawn automatically by the Game object.</para>
         /// </summary>
         public void DrawAllParticleSystems()
@@ -840,14 +890,11 @@ namespace DPSF
 
             // Reset how long it takes to Draw all particle systems
             TotalPerformanceTimeToDoDrawsInMilliseconds = 0;
-
-            // Loop through all of the Particle Systems
-            IDPSFParticleSystem particleSystem = null;
-            int iNumberOfParticleSystems = mcParticleSystemListSortedByDrawOrder.Count;
-            for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByDrawOrder.Count; ++iIndex)
             {
+                // Loop through all of the Particle Systems
                 // If the Particle System is Initialized
-                particleSystem = mcParticleSystemListSortedByDrawOrder[iIndex];
+                IDPSFParticleSystem particleSystem = mcParticleSystemListSortedByDrawOrder[iIndex];
                 if (particleSystem.IsInitialized)
                 {
                     // Draw the Particle System
@@ -869,97 +916,93 @@ namespace DPSF
         /// <returns>Returns a Texture with the Particle Systems in their current state drawn on it</returns>
         public Texture2D DrawAllParticleSystemsToTexture(GraphicsDevice cGraphicsDevice, int iTextureWidth, int iTextureHeight)
         {
+            // Store the Width and Height of the viewport
+            int iViewportWidth = cGraphicsDevice.Viewport.Width;
+            int iViewportHeight = cGraphicsDevice.Viewport.Height;
+
+            // Backup the given Graphics Device's Render Target
+            RenderTarget2D cOldRenderTarget = GetGraphicsDevicesCurrentRenderTarget(cGraphicsDevice);
+
+            // Create the new Render Target for the Particle Systems to draw to
+            var cNewPSRenderTarget = new RenderTarget2D(cGraphicsDevice, iViewportWidth, iViewportHeight);
+
+            // Set the Render Target the given Graphics Device should draw to
+            cGraphicsDevice.SetRenderTarget(cNewPSRenderTarget);
+
+            // Clear the scene
+            cGraphicsDevice.Clear(Color.Transparent);
+            for (int iIndex = 0; iIndex < mcParticleSystemListSortedByDrawOrder.Count; ++iIndex)
+            {
+                // Loop through all of the Particle Systems
+                // Get a handle to the Particle System
+                IDPSFParticleSystem cParticleSystem = mcParticleSystemListSortedByDrawOrder[iIndex];
+
+                // If the Particle System is Initialized
+                if (cParticleSystem.IsInitialized)
+                {
+                    // Backup the Particle System's current Render Target
+                    RenderTarget2D cOldPSRenderTarget = GetGraphicsDevicesCurrentRenderTarget(cParticleSystem.GraphicsDevice);
+
+                    // Set the Particle System's new Render Target to use
+                    cParticleSystem.GraphicsDevice.SetRenderTarget(cNewPSRenderTarget);
+
+                    // Draw the Particle System
+                    cParticleSystem.DrawForced();
+
+                    // Restore the Particle System's old Render Target
+                    cParticleSystem.GraphicsDevice.SetRenderTarget(cOldPSRenderTarget);
+                }
+            }
+
+            // Restore the given Graphics Device's Render Target
+            cGraphicsDevice.SetRenderTarget(cOldRenderTarget);
+
+            // Get the Texture with the Particle Systems drawn on it
+            Texture2D cPSTexture = cNewPSRenderTarget;
+
             // Variable to hold the Texture To Return
-            Texture2D cTextureToReturn = null;
+            Texture2D cTextureToReturn;
+            // If the Texture does not need to be scaled
+            if (iViewportWidth == iTextureWidth && iViewportHeight == iTextureHeight)
+            {
+                // Set the Texture To Return to the Particle System Texture
+                cTextureToReturn = cPSTexture;
+            }
+            // Else the Texture needs to be scaled
+            else
+            {
+                // Backup the Graphics Device's Depth Stencil Buffer
+                DepthStencilState cOldDepthStencilState = cGraphicsDevice.DepthStencilState;
 
-			// Store the Width and Height of the viewport
-			int iViewportWidth = cGraphicsDevice.Viewport.Width;
-			int iViewportHeight = cGraphicsDevice.Viewport.Height;
+                // Create the Render Target to draw the scaled Particle System Texture to
+                var cNewRenderTarget = new RenderTarget2D(cGraphicsDevice, iTextureWidth, iTextureHeight);
 
-			// Backup the given Graphics Device's Render Target
-			RenderTarget2D cOldRenderTarget = GetGraphicsDevicesCurrentRenderTarget(cGraphicsDevice);
+                // Set the given Graphics Device to draw to the new Render Target
+                cGraphicsDevice.SetRenderTarget(cNewRenderTarget);
 
-			// Create the new Render Target for the Particle Systems to draw to
-			RenderTarget2D cNewPSRenderTarget = new RenderTarget2D(cGraphicsDevice, iViewportWidth, iViewportHeight);
+                // Make sure the Graphic Device's Depth Stencil Buffer is large enough
+                cGraphicsDevice.DepthStencilState = DepthStencilState.Default;// = new DepthStencilBuffer(cGraphicsDevice, iTextureWidth, iTextureHeight, cGraphicsDevice.DepthStencilBuffer.Format);
 
-			// Set the Render Target the given Graphics Device should draw to
-			cGraphicsDevice.SetRenderTarget(cNewPSRenderTarget);
+                // Clear the scene
+                cGraphicsDevice.Clear(Color.Transparent);
 
-			// Clear the scene
-			cGraphicsDevice.Clear(Color.Transparent);
+                // Create the new SpriteBatch that will be used to scale the Texture
+                var cSpriteBatch = new SpriteBatch(cGraphicsDevice);
 
-			// Loop through all of the Particle Systems
-			IDPSFParticleSystem cParticleSystem = null;
-			int iNumberOfParticleSystems = mcParticleSystemListSortedByDrawOrder.Count;
-			for (int iIndex = 0; iIndex < iNumberOfParticleSystems; iIndex++)
-			{
-				// Get a handle to the Particle System
-				cParticleSystem = mcParticleSystemListSortedByDrawOrder[iIndex];
+                // Draw the scaled Texture
+                cSpriteBatch.Begin();
+                cSpriteBatch.Draw(cPSTexture, new Rectangle(0, 0, iTextureWidth, iTextureHeight), Color.White);
+                cSpriteBatch.End();
 
-				// If the Particle System is Initialized
-				if (cParticleSystem.IsInitialized)
-				{
-					// Backup the Particle System's current Render Target
-					RenderTarget2D cOldPSRenderTarget = GetGraphicsDevicesCurrentRenderTarget(cParticleSystem.GraphicsDevice);
+                // Restore the given Graphics Device's Render Target
+                cGraphicsDevice.SetRenderTarget(cOldRenderTarget);
 
-					// Set the Particle System's new Render Target to use
-					cParticleSystem.GraphicsDevice.SetRenderTarget(cNewPSRenderTarget);
+                // Restore the given Graphics Device's Depth Stencil
+                cGraphicsDevice.DepthStencilState = cOldDepthStencilState;
 
-					// Draw the Particle System
-					cParticleSystem.DrawForced();
-
-					// Restore the Particle System's old Render Target
-					cParticleSystem.GraphicsDevice.SetRenderTarget(cOldPSRenderTarget);
-				}
-			}
-
-			// Restore the given Graphics Device's Render Target
-			cGraphicsDevice.SetRenderTarget(cOldRenderTarget);
-
-			// Get the Texture with the Particle Systems drawn on it
-			Texture2D cPSTexture = cNewPSRenderTarget;
-
-			// If the Texture does not need to be scaled
-			if (iViewportWidth == iTextureWidth && iViewportHeight == iTextureHeight)
-			{
-				// Set the Texture To Return to the Particle System Texture
-				cTextureToReturn = cPSTexture;
-			}
-			// Else the Texture needs to be scaled
-			else
-			{
-				// Backup the Graphics Device's Depth Stencil Buffer
-				DepthStencilState cOldDepthStencilState = cGraphicsDevice.DepthStencilState;
-
-				// Create the Render Target to draw the scaled Particle System Texture to
-				RenderTarget2D cNewRenderTarget = new RenderTarget2D(cGraphicsDevice, iTextureWidth, iTextureHeight);
-
-				// Set the given Graphics Device to draw to the new Render Target
-				cGraphicsDevice.SetRenderTarget(cNewRenderTarget);
-
-				// Make sure the Graphic Device's Depth Stencil Buffer is large enough
-				cGraphicsDevice.DepthStencilState = DepthStencilState.Default;// = new DepthStencilBuffer(cGraphicsDevice, iTextureWidth, iTextureHeight, cGraphicsDevice.DepthStencilBuffer.Format);
-				
-				// Clear the scene
-				cGraphicsDevice.Clear(Color.Transparent);
-
-				// Create the new SpriteBatch that will be used to scale the Texture
-				SpriteBatch cSpriteBatch = new SpriteBatch(cGraphicsDevice);
-
-				// Draw the scaled Texture
-				cSpriteBatch.Begin();
-				cSpriteBatch.Draw(cPSTexture, new Rectangle(0, 0, iTextureWidth, iTextureHeight), Color.White);
-				cSpriteBatch.End();
-
-				// Restore the given Graphics Device's Render Target
-				cGraphicsDevice.SetRenderTarget(cOldRenderTarget);
-
-				// Restore the given Graphics Device's Depth Stencil
-				cGraphicsDevice.DepthStencilState = cOldDepthStencilState;
-
-				// Set the Texture To Return to the scaled Texture
-				cTextureToReturn = cNewRenderTarget;
-			}
+                // Set the Texture To Return to the scaled Texture
+                cTextureToReturn = cNewRenderTarget;
+            }
 
             // Return the Texture
             return cTextureToReturn;
@@ -988,7 +1031,7 @@ namespace DPSF
                                                             bool bCreateAnimatedGIF, bool bCreateTileSetImage)
         {
             // Create a List to hold all of the FileNames created
-            List<string> sFileNamesList = new List<string>();
+            var sFileNamesList = new List<string>();
 
             // Find a Directory name that doesn't exist already
             int iDirectoryNumber = 0;
@@ -1011,9 +1054,9 @@ namespace DPSF
             int iTileSetColumns = (int)Math.Ceiling(Math.Sqrt(iNumberOfImages));
 
             // Calculate how many rows the texture should have
-            int iTileSetRows = (int)Math.Ceiling((float)iNumberOfImages / (float)iTileSetColumns);
+            int iTileSetRows = (int)Math.Ceiling((float)iNumberOfImages / iTileSetColumns);
 
-			// Calculate the required Width and Height of the Tile Set texture
+            // Calculate the required Width and Height of the Tile Set texture
             int iTileSetWidth = iTileSetColumns * iImageWidth;
             int iTileSetHeight = iTileSetRows * iImageHeight;
 
@@ -1022,7 +1065,7 @@ namespace DPSF
             if (bCreateTileSetImage)
             {
                 // Backup the given Graphics Device's Render Target
-				RenderTarget2D cOldRenderTarget = GetGraphicsDevicesCurrentRenderTarget(cGraphicsDevice);
+                RenderTarget2D cOldRenderTarget = GetGraphicsDevicesCurrentRenderTarget(cGraphicsDevice);
 
                 // Backup the Graphics Device's Depth Stencil Buffer
                 DepthStencilState cOldDepthStencilState = cGraphicsDevice.DepthStencilState;
@@ -1034,7 +1077,7 @@ namespace DPSF
                 cGraphicsDevice.SetRenderTarget(cTileSetRenderTarget);
 
                 // Make sure the Graphic Device's Depth Stencil Buffer is large enough
-				cGraphicsDevice.DepthStencilState = DepthStencilState.Default;// new DepthStencilBuffer(cGraphicsDevice, iTileSetWidth, iTileSetHeight, cGraphicsDevice.DepthStencilBuffer.Format);
+                cGraphicsDevice.DepthStencilState = DepthStencilState.Default;// new DepthStencilBuffer(cGraphicsDevice, iTileSetWidth, iTileSetHeight, cGraphicsDevice.DepthStencilBuffer.Format);
 
                 // Clear the scene
                 cGraphicsDevice.Clear(Color.Transparent);
@@ -1046,7 +1089,7 @@ namespace DPSF
                 cGraphicsDevice.DepthStencilState = cOldDepthStencilState;
             }
 
-            // Update the Particle System iteratively by the Time Step amount until the 
+            // Update the Particle System iteratively by the Time Step amount until the
             // Particle System behavior over the Total Time has been drawn to files
             int iFrameNumber = 0;
             float fElapsedTime = 0;
@@ -1074,11 +1117,11 @@ namespace DPSF
                 string sFilePath = sDirectory + "/Frame" + iFrameNumber.ToString() + ".png";
 
                 // Save the Texture to a file
-				using (System.IO.StreamWriter stream = new System.IO.StreamWriter(sFilePath))
-				{
-					cTexture.SaveAsPng(stream.BaseStream, iImageWidth, iImageHeight);
-					stream.Close();
-				}
+                using (var stream = new System.IO.StreamWriter(sFilePath))
+                {
+                    cTexture.SaveAsPng(stream.BaseStream, iImageWidth, iImageHeight);
+                    stream.Close();
+                }
 
                 // Add the new file to the FileNames List
                 sFileNamesList.Add(sFilePath);
@@ -1099,16 +1142,16 @@ namespace DPSF
             {
                 // Save the Tile Set image
                 string sTileSetFilePath = sDirectory + "/TileSet.png";
-				using (System.IO.StreamWriter stream = new System.IO.StreamWriter(sTileSetFilePath, false))
-				{
-					((Texture2D)cTileSetRenderTarget).SaveAsPng(stream.BaseStream, iTileSetWidth, iTileSetHeight);
-					stream.Close();
-				}
+                using (var stream = new System.IO.StreamWriter(sTileSetFilePath, false))
+                {
+                    ((Texture2D)cTileSetRenderTarget).SaveAsPng(stream.BaseStream, iTileSetWidth, iTileSetHeight);
+                    stream.Close();
+                }
             }
         }
 
         /// <summary>
-        /// Creates an Animated GIF from the files with the given File Paths and stores it in the given Directory 
+        /// Creates an Animated GIF from the files with the given File Paths and stores it in the given Directory
         /// relative to the application's executable.
         /// <para>NOTE: This function is not available on the Xbox 360.</para>
         /// </summary>
@@ -1117,7 +1160,7 @@ namespace DPSF
         /// <param name="sDirectory">The Directory to store the Animated GIF in</param>
         private void CreateAnimatedGIFFromImageFiles(List<string> cFilePathsList, float fTimeStep, string sDirectory)
         {
-            // This code for creating an animated GIF was taken from 
+            // This code for creating an animated GIF was taken from
             // http://bloggingabout.net/blogs/rick/archive/2005/05/10/3830.aspx
 
             // Note: The GIF animation time is very slow and maxes out around 10fps,
@@ -1218,7 +1261,7 @@ namespace DPSF
                                         Texture2D cTexture, Rectangle sPositionAndDimensionsInTileSetToAddImage)
         {
             // Backup the given Graphics Device's Render Target
-			RenderTarget2D cOldRenderTarget = GetGraphicsDevicesCurrentRenderTarget(cGraphicsDevice);
+            RenderTarget2D cOldRenderTarget = GetGraphicsDevicesCurrentRenderTarget(cGraphicsDevice);
 
             // Backup the Graphics Device's Depth Stencil Buffer
             DepthStencilState cOldDepthStencilState = cGraphicsDevice.DepthStencilState;
@@ -1227,10 +1270,10 @@ namespace DPSF
             cGraphicsDevice.SetRenderTarget(cTileSetRenderTarget);
 
             // Make sure the Graphic Device's Depth Stencil Buffer is large enough
-			cGraphicsDevice.DepthStencilState = DepthStencilState.Default; // new DepthStencilBuffer(cGraphicsDevice, cTileSetRenderTarget.Width, cTileSetRenderTarget.Height, cGraphicsDevice.DepthStencilBuffer.Format);
+            cGraphicsDevice.DepthStencilState = DepthStencilState.Default; // new DepthStencilBuffer(cGraphicsDevice, cTileSetRenderTarget.Width, cTileSetRenderTarget.Height, cGraphicsDevice.DepthStencilBuffer.Format);
 
             // Create the new SpriteBatch that will be used to draw the Texture into the Tile Set
-            SpriteBatch cSpriteBatch = new SpriteBatch(cGraphicsDevice);
+            var cSpriteBatch = new SpriteBatch(cGraphicsDevice);
 
             // Draw the Texture to the Tile Set Texture
             cSpriteBatch.Begin();
@@ -1244,18 +1287,18 @@ namespace DPSF
             cGraphicsDevice.DepthStencilState = cOldDepthStencilState;
         }
 
-		/// <summary>
-		/// Gets the graphics device's current render target, or null if it is not set.
-		/// </summary>
-		/// <param name="graphicsDevice">The graphics device.</param>
-		/// <returns></returns>
-		private RenderTarget2D GetGraphicsDevicesCurrentRenderTarget(GraphicsDevice graphicsDevice)
-		{
-			var renderTargets = graphicsDevice.GetRenderTargets();
-			if (renderTargets.Length <= 0)
-				return null;
-			return (RenderTarget2D)renderTargets[0].RenderTarget;
-		}
+        /// <summary>
+        /// Gets the graphics device's current render target, or null if it is not set.
+        /// </summary>
+        /// <param name="graphicsDevice">The graphics device.</param>
+        /// <returns></returns>
+        private RenderTarget2D GetGraphicsDevicesCurrentRenderTarget(GraphicsDevice graphicsDevice)
+        {
+            var renderTargets = graphicsDevice.GetRenderTargets();
+            if (renderTargets.Length <= 0)
+                return null;
+            return (RenderTarget2D)renderTargets[0].RenderTarget;
+        }
 
         /// <summary>
         /// Sort the two Particle System Lists
@@ -1271,7 +1314,7 @@ namespace DPSF
         /// </summary>
         private void SortParticleSystemsByUpdateOrderList()
         {
-            mcParticleSystemListSortedByUpdateOrder.Sort(delegate(IDPSFParticleSystem cPS1, IDPSFParticleSystem cPS2)
+            mcParticleSystemListSortedByUpdateOrder.Sort(delegate (IDPSFParticleSystem cPS1, IDPSFParticleSystem cPS2)
             { return cPS1.UpdateOrder.CompareTo(cPS2.UpdateOrder); });
         }
 
@@ -1280,7 +1323,7 @@ namespace DPSF
         /// </summary>
         private void SortParticleSystemsByDrawOrderList()
         {
-            mcParticleSystemListSortedByDrawOrder.Sort(delegate(IDPSFParticleSystem cPS1, IDPSFParticleSystem cPS2)
+            mcParticleSystemListSortedByDrawOrder.Sort(delegate (IDPSFParticleSystem cPS1, IDPSFParticleSystem cPS2)
             { return cPS1.DrawOrder.CompareTo(cPS2.DrawOrder); });
         }
 
@@ -1290,9 +1333,7 @@ namespace DPSF
         /// <param name="sender">The Object that sent the event</param>
         /// <param name="e">Extra information</param>
         private void ParticleSystem_UpdateOrderChanged(object sender, EventArgs e)
-        {
-            mbAParticleSystemsUpdateOrderWasChanged = true;
-        }
+            => mbAParticleSystemsUpdateOrderWasChanged = true;
 
         /// <summary>
         /// Records that the Particle Systems need to be resorted before doing the next Draws
@@ -1300,8 +1341,6 @@ namespace DPSF
         /// <param name="sender">The Object that sent the event</param>
         /// <param name="e">Extra information</param>
         private void ParticleSystem_DrawOrderChanged(object sender, EventArgs e)
-        {
-            mbAParticleSystemsDrawOrderWasChanged = true;
-        }
+            => mbAParticleSystemsDrawOrderWasChanged = true;
     }
 }

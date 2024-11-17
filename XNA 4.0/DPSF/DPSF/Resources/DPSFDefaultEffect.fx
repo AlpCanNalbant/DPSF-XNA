@@ -1,6 +1,6 @@
 //====================== File Description ===========================
 // DPSFEffects.fx
-// 
+//
 // This file provides the default Vertex and Pixel Shaders used by
 // the DPSF Default Particle System classes.
 //
@@ -29,8 +29,8 @@ float4x4 xWorld;				// The World matrix
 //===================================================================
 // Texture Sampler
 //===================================================================
-sampler TextureSampler = sampler_state 
-{ 
+sampler TextureSampler = sampler_state
+{
 	texture = <xTexture>;
 
 	MinFilter = Linear;
@@ -62,7 +62,7 @@ float4 SpritePixelShader(SpritePixelShaderInput input) : COLOR0
 
 	// Get the Color of the Texture at the specific Coordinate
 	float4 Color = tex2D(TextureSampler, NormalizedTextureCoordinate);
-   
+
    // If this Pixel should not be completely transparent
 	if (Color.a > 0.0)
 	{
@@ -71,11 +71,11 @@ float4 SpritePixelShader(SpritePixelShaderInput input) : COLOR0
 
 		// Blend the specified Color with the Texture's Color
 		Color.rgb = (xColorBlendAmount * input.Color.rgb) + ((1 - xColorBlendAmount) * Color.rgb);
-	
+
 		// Scale the Texture's Alpha according to the specified Alpha
 		// The following equation is equivalent to: Color.a -= ((1 - input.Color.a) * Color.a);
 		Color.a *= input.Color.a;
-	
+
 		// Convert the color to a Premultiplied color
 		Color.rgb *= Color.a;
 	}
@@ -115,13 +115,13 @@ QuadVertexShaderOutput QuadVertexShader(QuadVertexShaderInput input)
 	// Convert the given Color to a premultiplied color
 	input.Color.rgb *= input.Color.a;
 	Output.Color = input.Color;
-	
+
 	return Output;
 }
 
 // Pixel Shader for drawing Quads
 float4 QuadPixelShader(QuadVertexShaderOutput input) : COLOR0
-{    
+{
 	return input.Color;
 }
 
@@ -160,7 +160,7 @@ TexturedQuadVertexShaderOutput TexturedQuadVertexShader(TexturedQuadVertexShader
 	// Pass the rest of the properties through unchanged
 	Output.NormalizedTextureCoordinate = input.NormalizedTextureCoordinate;
 	Output.Color = input.Color;
-	
+
 	return Output;
 }
 
@@ -181,11 +181,11 @@ float4 TexturedQuadPixelShader(TexturedQuadVertexShaderOutput input) : COLOR0
 
 		// Blend the specified Color with the Texture's Color
 		Color.rgb = (xColorBlendAmount * input.Color.rgb) + ((1 - xColorBlendAmount) * Color.rgb);
-	
+
 		// Scale the Texture's Alpha according to the specified Alpha
 		// The following equation is equivalent to: Color.a -= ((1 - input.Color.a) * Color.a);
 		Color.a *= input.Color.a;
-	
+
 		// Convert the color to a Premultiplied color
 		Color.rgb *= Color.a;
 	}
@@ -214,7 +214,7 @@ TexturedQuadVertexShaderOutput TexturedQuadVertexShaderExperimental(TexturedQuad
 
 	// Pass the rest of the properties through unchanged
 	Output.NormalizedTextureCoordinate = input.NormalizedTextureCoordinate;
-	
+
 	return Output;
 }
 
@@ -229,7 +229,7 @@ float4 TexturedQuadPixelShaderExperimental(TexturedQuadVertexShaderOutput input)
 
 	// Blend the specified Color with the Texture's Color according to the Blend Amount
 	Color.rgb = ((1.0 - xColorBlendAmount) * Color.rgb) + (xColorBlendAmount * input.Color.rgb);
-	
+
 	// Scale the Texture's Alpha according to the specified Alpha
 	Color.a *= input.Color.a;
 
@@ -248,7 +248,7 @@ technique Sprites
 {
 	pass Pass1
 	{
-		PixelShader = compile ps_2_0 SpritePixelShader();
+		PixelShader = compile ps_4_0 SpritePixelShader();
 	}
 }
 
@@ -256,8 +256,8 @@ technique Quads
 {
 	pass Pass1
 	{
-		VertexShader = compile vs_2_0 QuadVertexShader();
-		PixelShader = compile ps_2_0 QuadPixelShader();
+		VertexShader = compile vs_4_0 QuadVertexShader();
+		PixelShader = compile ps_4_0 QuadPixelShader();
 	}
 }
 
@@ -265,8 +265,8 @@ technique TexturedQuads
 {
 	pass Pass1
 	{
-		VertexShader = compile vs_2_0 TexturedQuadVertexShader();
-		PixelShader = compile ps_2_0 TexturedQuadPixelShader();
+		VertexShader = compile vs_4_0 TexturedQuadVertexShader();
+		PixelShader = compile ps_4_0 TexturedQuadPixelShader();
 	}
 }
 
@@ -274,7 +274,7 @@ technique TexturedQuadsExperimental
 {
 	pass Pass1
 	{
-		VertexShader = compile vs_2_0 TexturedQuadVertexShaderExperimental();
-		PixelShader = compile ps_2_0 TexturedQuadPixelShaderExperimental();
+		VertexShader = compile vs_4_0 TexturedQuadVertexShaderExperimental();
+		PixelShader = compile ps_4_0 TexturedQuadPixelShaderExperimental();
 	}
 }

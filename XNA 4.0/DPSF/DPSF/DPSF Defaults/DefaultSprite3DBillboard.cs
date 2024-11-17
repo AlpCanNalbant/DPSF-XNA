@@ -10,22 +10,21 @@ namespace DPSF
     /// <summary>
     /// The Default Sprite 3D Billboard Particle System to inherit from, which uses Default Sprite 3D Billboard Particles
     /// </summary>
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="cGame">Handle to the Game object being used. Pass in null for this
+    /// parameter if not using a Game object.</param>
 #if (WINDOWS)
     [Serializable]
 #endif
-	public abstract class DefaultSprite3DBillboardParticleSystem : DPSFDefaultSprite3DBillboardParticleSystem<DefaultSprite3DBillboardParticle, DefaultSpriteParticleVertex>
-    {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="cGame">Handle to the Game object being used. Pass in null for this 
-        /// parameter if not using a Game object.</param>
-        public DefaultSprite3DBillboardParticleSystem(Game cGame) : base(cGame) { }
-    }
+    public abstract class DefaultSprite3DBillboardParticleSystem(Game cGame)
+        : DPSFDefaultSprite3DBillboardParticleSystem<DefaultSprite3DBillboardParticle, DefaultSpriteParticleVertex>(cGame)
+    { }
 
     /// <summary>
-	/// Particle used by the Default Sprite 3D Billboard Particle System
-	/// </summary>
+    /// Particle used by the Default Sprite 3D Billboard Particle System
+    /// </summary>
 #if (WINDOWS)
     [Serializable]
 #endif
@@ -33,7 +32,7 @@ namespace DPSF
     {
         /// <summary>
         /// The squared distance between this particle and the camera.
-        /// <para>NOTE: This property is only used if you are sorting the particles based on their distance 
+        /// <para>NOTE: This property is only used if you are sorting the particles based on their distance
         /// from the camera, otherwise you can use this property for whatever you like.</para>
         /// </summary>
         public float DistanceFromCameraSquared;
@@ -68,19 +67,19 @@ namespace DPSF
     /// </summary>
     /// <typeparam name="Particle">The Particle class to use.</typeparam>
     /// <typeparam name="Vertex">The Vertex Format to use.</typeparam>
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="cGame">Handle to the Game object being used. Pass in null for this
+    /// parameter if not using a Game object.</param>
 #if (WINDOWS)
     [Serializable]
 #endif
-	public abstract class DPSFDefaultSprite3DBillboardParticleSystem<Particle, Vertex> : DPSFDefaultSpriteParticleSystem<Particle, Vertex>
+    public abstract class DPSFDefaultSprite3DBillboardParticleSystem<Particle, Vertex>(Game cGame)
+        : DPSFDefaultSpriteParticleSystem<Particle, Vertex>(cGame)
         where Particle : DPSFParticle, new()
         where Vertex : struct, IDPSFParticleVertex
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="cGame">Handle to the Game object being used. Pass in null for this 
-        /// parameter if not using a Game object.</param>
-        public DPSFDefaultSprite3DBillboardParticleSystem(Game cGame) : base(cGame) { }
 
         //===========================================================
         // Structures and Variables
@@ -88,7 +87,7 @@ namespace DPSF
 
         /// <summary>
         /// Get / Set the Position of the Camera.
-        /// <para>NOTE: 3D Billboard Sprite particles always face the camera by using the View Matrix, so this only needs to be Set (updated) every frame if you plan on 
+        /// <para>NOTE: 3D Billboard Sprite particles always face the camera by using the View Matrix, so this only needs to be Set (updated) every frame if you plan on
         /// sorting these particles relative to one another by their distance from the camera, in order to give proper depth perception of the particles.</para>
         /// </summary>
         public Vector3 CameraPosition { get; set; }
@@ -146,8 +145,7 @@ namespace DPSF
         protected override void SetEffectParameters()
         {
             // Use the AlphaTestEffect so we can take advantage of Alpha Testing automatically.
-            AlphaTestEffect effect = this.Effect as AlphaTestEffect;
-            if (effect != null)
+            if (this.Effect is AlphaTestEffect effect)
             {
                 effect.World = this.World;
                 effect.View = Matrix.Identity;          // Don't set the Effect's View Matrix, as we'll manually apply the view matrix to the sprite in the DrawSprite() function.
@@ -158,15 +156,13 @@ namespace DPSF
 
         /// <summary>
         /// Sets the camera position, so that the particles know how far they are from the camera and can be properly sorted.
-		/// <para>NOTE: 3D Billboard Sprite particles always face the camera, so this only needs to be Set (updated) every frame if you plan on 
+		/// <para>NOTE: 3D Billboard Sprite particles always face the camera, so this only needs to be Set (updated) every frame if you plan on
 		/// sorting these particles relative to one another by their distance from the camera, in order to give proper depth perception of the particles
 		/// (i.e. by adding the Particle EveryTimeEvent UpdateParticleDistanceFromCameraSquared and the Particle System EveryTimeEvent UpdateParticleSystemToSortParticlesByDistanceFromCamera).</para>
         /// </summary>
         /// <param name="cameraPosition">The camera position.</param>
         public override void SetCameraPosition(Vector3 cameraPosition)
-        {
-            this.CameraPosition = cameraPosition;
-        }
+            => this.CameraPosition = cameraPosition;
 
         //===========================================================
         // Particle Update Functions
@@ -178,9 +174,7 @@ namespace DPSF
         /// <param name="cParticle">The Particle to update.</param>
         /// <param name="fElapsedTimeInSeconds">How long it has been since the last update.</param>
         protected void UpdateParticleDistanceFromCameraSquared(DefaultSprite3DBillboardParticle cParticle, float fElapsedTimeInSeconds)
-        {
-            cParticle.DistanceFromCameraSquared = Vector3.DistanceSquared(this.CameraPosition, cParticle.Position);
-        }
+            => cParticle.DistanceFromCameraSquared = Vector3.DistanceSquared(this.CameraPosition, cParticle.Position);
 
         //===========================================================
         // Particle System Update Functions
@@ -188,7 +182,7 @@ namespace DPSF
 
         /// <summary>
         /// Sorts the particles to draw particles furthest from the camera first, in order to achieve proper depth perspective.
-        /// 
+        ///
         /// <para>NOTE: This operation is very expensive and should only be used when you are
         /// drawing particles with both opaque and semi-transparent portions, and not using additive blending.</para>
         /// <para>Merge Sort is the sorting algorithm used, as it tends to be best for linked lists.
@@ -224,7 +218,7 @@ namespace DPSF
             }
 
             // Now that the List is full, sort it
-            cActiveParticleList.Sort(delegate(Particle Particle1, Particle Particle2)
+            cActiveParticleList.Sort(delegate (Particle Particle1, Particle Particle2)
             {
                 DefaultSprite3DBillboardParticle cParticle1 = (DefaultSprite3DBillboardParticle)(DPSFParticle)Particle1;
                 DefaultSprite3DBillboardParticle cParticle2 = (DefaultSprite3DBillboardParticle)(DPSFParticle)Particle2;
