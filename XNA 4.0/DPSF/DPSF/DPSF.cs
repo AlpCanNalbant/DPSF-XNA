@@ -4074,6 +4074,9 @@ namespace DPSF
             set => ParticleSystemEvents.LifetimeData.Lifetime = value;
         }
 
+        public ParticleSystemAddedDel Added { get; set; }
+        public ParticleSystemRemovedDel Removed { get; set; }
+
         /// <summary>
         /// Initialize the given Particle using the current Initialization Function
         /// </summary>

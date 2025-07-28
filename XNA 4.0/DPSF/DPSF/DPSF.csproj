@@ -10,6 +10,9 @@
     <ProjectReference Include="..\..\..\..\MonoGame\MonoGame.Framework\MonoGame.Framework.WindowsDX.csproj">
       <PrivateAssets>All</PrivateAssets>
     </ProjectReference>
+    <!-- <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.5-develop.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference> -->
   </ItemGroup>
 
   <!-- <ItemGroup>

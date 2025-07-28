@@ -20,70 +20,52 @@ namespace DPSF
         /// <summary>
         /// Structure to store an individual Picture's position and dimensions within a texture
         /// </summary>
+        /// <remarks>
+        /// Explicit constructor
+        /// </remarks>
+        /// <param name="iID">The ID of this Picture (this should be unique)</param>
+        /// <param name="sTextureCoordinates">The top-left (x,y) position and (width,height) dimensions
+        /// of the Picture within the texture</param>
 #if (WINDOWS)
         [Serializable]
 #endif
-        struct SPicture
+        struct SPicture(int iID, Rectangle sTextureCoordinates)
         {
-            public int iID;                         // The Unique ID of this Picture (used as its Index in the Pictures List)
-            public Rectangle sTextureCoordinates;   // The Position and Dimensions of this Picture in the Texture
-
-            /// <summary>
-            /// Explicit constructor
-            /// </summary>
-            /// <param name="iID">The ID of this Picture (this should be unique)</param>
-            /// <param name="sTextureCoordinates">The top-left (x,y) position and (width,height) dimensions
-            /// of the Picture within the texture</param>
-            public SPicture(int iID, Rectangle sTextureCoordinates)
-            {
-                this.iID = iID;
-                this.sTextureCoordinates = sTextureCoordinates;
-            }
+            public int iID = iID;                         // The Unique ID of this Picture (used as its Index in the Pictures List)
+            public Rectangle sTextureCoordinates = sTextureCoordinates;   // The Position and Dimensions of this Picture in the Texture
         }
 
         /// <summary>
-        /// Class to hold a single Animation's (i.e. Walking, Running, Jumping, etc) sequence of 
+        /// Class to hold a single Animation's (i.e. Walking, Running, Jumping, etc) sequence of
         /// Pictures and how long to display each Picture in the Animation for
         /// </summary>
+        /// <remarks>
+        /// Explicit Constructor
+        /// </remarks>
+        /// <param name="iID">The ID of this Animation (this should be unique)</param>
+        /// <param name="cPictureRotationOrder">A List of Picture ID's which tell the sequence of
+        /// Pictures that make up the Animation</param>
+        /// <param name="fPictureRotationTime">How long (in seconds) to wait before switching to the
+        /// next Picture in the Picture Rotation Order</param>
+        /// <param name="iNumberOfTimesToPlay">The Number of Times the Animation should Play before stopping. A value
+        /// of zero means the Animation should repeat forever.</param>
 #if (WINDOWS)
         [Serializable]
 #endif
-        class Animation
+        class Animation(int iID, List<int> cPictureRotationOrder, float fPictureRotationTime, int iNumberOfTimesToPlay)
         {
-            public int miID;                        // The unique ID of this Animation (used as its Index position in the Animation List)
-            public List<int> mcPictureRotationOrder;// The Order to Rotate through the Pictures to make the Animation
-            public int miCurrentPictureIndex;       // The Index of the Current Picture in the Picture List
-            public float mfPictureRotationTime;     // The length of Time to wait before changing to the next Picture in the Animation
-            public int miNumberOfTimesToPlay;       // The number of times the Animation should Play (repeats when it reaches the end)
-            public int miNumberOfTimesPlayed;       // The number of times the Animation has Played already
-
-            /// <summary>
-            /// Explicit Constructor
-            /// </summary>
-            /// <param name="iID">The ID of this Animation (this should be unique)</param>
-            /// <param name="cPictureRotationOrder">A List of Picture ID's which tell the sequence of 
-            /// Pictures that make up the Animation</param>
-            /// <param name="fPictureRotationTime">How long (in seconds) to wait before switching to the
-            /// next Picture in the Picture Rotation Order</param>
-            /// <param name="iNumberOfTimesToPlay">The Number of Times the Animation should Play before stopping. A value
-            /// of zero means the Animation should repeat forever.</param>
-            public Animation(int iID, List<int> cPictureRotationOrder, float fPictureRotationTime, int iNumberOfTimesToPlay)
-            {
-                miID = iID;
-                mcPictureRotationOrder = new List<int>(cPictureRotationOrder);
-                miCurrentPictureIndex = 0;
-                mfPictureRotationTime = fPictureRotationTime;
-                miNumberOfTimesToPlay = iNumberOfTimesToPlay;
-                miNumberOfTimesPlayed = 0;
-            }
+            public int miID = iID;                        // The unique ID of this Animation (used as its Index position in the Animation List)
+            public List<int> mcPictureRotationOrder = new(cPictureRotationOrder);// The Order to Rotate through the Pictures to make the Animation
+            public int miCurrentPictureIndex = 0;       // The Index of the Current Picture in the Picture List
+            public float mfPictureRotationTime = fPictureRotationTime;     // The length of Time to wait before changing to the next Picture in the Animation
+            public int miNumberOfTimesToPlay = iNumberOfTimesToPlay;       // The number of times the Animation should Play (repeats when it reaches the end)
+            public int miNumberOfTimesPlayed = 0;       // The number of times the Animation has Played already
 
             /// <summary>
             /// Returns the Picture ID of the Current Picture being displayed.
             /// </summary>
             public int CurrentPicturesID
-            {
-                get { return mcPictureRotationOrder[miCurrentPictureIndex]; }
-            }
+                => mcPictureRotationOrder[miCurrentPictureIndex];
 
             /// <summary>
             /// Moves the Current Picture Index to the next element in the Picture Rotation Order, and loops
@@ -125,13 +107,11 @@ namespace DPSF
             /// NOTE: Animations with Number Of Times To Play == 0 will never end
             /// </summary>
             public bool AnimationHasEnded
-            {
-                get { return ((miNumberOfTimesPlayed == miNumberOfTimesToPlay) && miNumberOfTimesToPlay != 0); }
-            }
+                => ((miNumberOfTimesPlayed == miNumberOfTimesToPlay) && miNumberOfTimesToPlay != 0);
         }
 
-        List<SPicture> mcPictures = new List<SPicture>();       // Holds all of the Pictures
-        List<Animation> mcAnimations = new List<Animation>();   // Holds all of the Animations
+        List<SPicture> mcPictures = [];       // Holds all of the Pictures
+        List<Animation> mcAnimations = [];   // Holds all of the Animations
         int miCurrentAnimationID = -1;      // The Index of the Animation that is Current being used
         float mfAnimationFrameTimer = 0.0f; // Used to determine when to move to the next Picture (i.e. Frame) in the Animation
         bool mbPaused = false;              // Tells if the Animation is Paused or not
@@ -142,7 +122,6 @@ namespace DPSF
         /// <param name="cAnimationToCopy">The Animation to Copy from</param>
         public void CopyFrom(Animations cAnimationToCopy)
         {
-            int iIndex = 0;
 
             // Copy the simple class information
             miCurrentAnimationID = cAnimationToCopy.miCurrentAnimationID;
@@ -154,9 +133,10 @@ namespace DPSF
             // Deep Copy the Animations List info (since it contains a reference types)
             int iNumberOfAnimations = cAnimationToCopy.mcAnimations.Count;
             mcAnimations = new List<Animation>(iNumberOfAnimations);
+            int iIndex;
             for (iIndex = 0; iIndex < iNumberOfAnimations; iIndex++)
             {
-                Animation cAnimation = new Animation(cAnimationToCopy.mcAnimations[iIndex].miID,
+                Animation cAnimation = new(cAnimationToCopy.mcAnimations[iIndex].miID,
                                                      cAnimationToCopy.mcAnimations[iIndex].mcPictureRotationOrder,
                                                      cAnimationToCopy.mcAnimations[iIndex].mfPictureRotationTime,
                                                      cAnimationToCopy.mcAnimations[iIndex].miNumberOfTimesToPlay);
@@ -168,7 +148,7 @@ namespace DPSF
         }
 
         /// <summary>
-        /// Creates a Picture that can be used in a Animation, and returns its unique ID. 
+        /// Creates a Picture that can be used in a Animation, and returns its unique ID.
         /// A Picture can be used multiple times in an Animation.
         /// </summary>
         /// <param name="sTextureCoordinates">The top-left (x,y) position and (width,height) dimensions
@@ -180,7 +160,7 @@ namespace DPSF
             int iPictureIndex = mcPictures.Count;
 
             // Create the new Picture, using the Index as the Pictures ID
-            SPicture sPicture = new SPicture(iPictureIndex, sTextureCoordinates);
+            SPicture sPicture = new(iPictureIndex, sTextureCoordinates);
 
             // Add the new Picture to the Picture List
             mcPictures.Add(sPicture);
@@ -190,7 +170,7 @@ namespace DPSF
         }
 
         /// <summary>
-        /// Automatically creates the specified Total Number Of Pictures. All pictures are assumed to have 
+        /// Automatically creates the specified Total Number Of Pictures. All pictures are assumed to have
         /// the same width and height, as specified in the First Picture rectangle. Also, the First Picture
         /// is assumed to be at the top-left corner of the Tileset.
         /// <para>Pictures are created in left-to-right, top-to-bottom order. The ID of the first Picture created
@@ -206,9 +186,9 @@ namespace DPSF
         /// will have an ID of (returned ID + (Total Number Of Pictures - 1)).</returns>
         public int CreatePicturesFromTileSet(int iTotalNumberOfPictures, int iPicturesPerRow, Rectangle sFirstPicture)
         {
-            int iIndex = 0;
             int iLastPictureID = 0;
 
+            int iIndex;
             // Loop through and create each Picture
             for (iIndex = 0; iIndex < iTotalNumberOfPictures; iIndex++)
             {
@@ -238,8 +218,8 @@ namespace DPSF
         /// to Rotate through in order to produce the Animation. A single Picture ID can be used many times.</param>
         /// <param name="fPictureRotationTime">How long (in seconds) to wait before switching to the
         /// next Picture in the Picture Rotation Order (i.e. The frame-rate of the Animation)</param>
-        /// <param name="iNumberOfTimesToPlay">The number of times this Animation should be played 
-        /// (it replays when the end of the Animation is reached). Specify a value of zero to have the 
+        /// <param name="iNumberOfTimesToPlay">The number of times this Animation should be played
+        /// (it replays when the end of the Animation is reached). Specify a value of zero to have the
         /// Animation repeat forever</param>
         /// <returns>Returns the new Animation's unique ID.</returns>
         public int CreateAnimation(List<int> cPictureRotationOrder, float fPictureRotationTime, int iNumberOfTimesToPlay)
@@ -263,7 +243,7 @@ namespace DPSF
             int iAnimationIndex = mcAnimations.Count;
 
             // Create the new Animation
-            Animation cAnimation = new Animation(iAnimationIndex, cPictureRotationOrder, fPictureRotationTime, iNumberOfTimesToPlay);
+            Animation cAnimation = new(iAnimationIndex, cPictureRotationOrder, fPictureRotationTime, iNumberOfTimesToPlay);
 
             // Add the new Animation to the Animations List
             mcAnimations.Add(cAnimation);
@@ -281,21 +261,21 @@ namespace DPSF
         /// to Rotate through in order to produce the Animation</param>
         /// <param name="fPictureRotationTime">How long (in seconds) to wait before switching to the
         /// next Picture in the Picture Rotation Order (i.e. The next Frame in the Animation)</param>
-        /// <param name="iNumberOfTimesToPlay">The number of times this Animation should be played 
-        /// (it replays when the end of the Animation is reached). Specify a value of zero to have the 
+        /// <param name="iNumberOfTimesToPlay">The number of times this Animation should be played
+        /// (it replays when the end of the Animation is reached). Specify a value of zero to have the
         /// Animation repeat forever</param>
         /// <returns>Returns the new Animation's unique ID.
         /// NOTE: Returns -1 if an invalid Picture ID was specified in the PictureRotationOrder.</returns>
         public int CreateAnimation(int[] iaPictureRotationOrder, float fPictureRotationTime, int iNumberOfTimesToPlay)
         {
-            int iIndex = 0;
 
             // Get the Number of elements in the Picture Rotation Order array
             int iSizeOfArray = iaPictureRotationOrder.Length;
 
             // List to hold all of the Picture Rotation Order values
-            List<int> cPictureRotationOrder = new List<int>(iSizeOfArray);
+            List<int> cPictureRotationOrder = new(iSizeOfArray);
 
+            int iIndex;
             // Loop through each of the elements in the Picture Rotation Order array and store them in the List
             for (iIndex = 0; iIndex < iSizeOfArray; iIndex++)
             {
@@ -312,9 +292,7 @@ namespace DPSF
         /// <param name="iPictureID">The Picture ID to look for</param>
         /// <returns>Returns true if the given Picture ID is valid (i.e. A Picture with the same ID exists).</returns>
         public bool PictureIDIsValid(int iPictureID)
-        {
-            return (iPictureID >= 0 && iPictureID < mcPictures.Count);
-        }
+            => (iPictureID >= 0 && iPictureID < mcPictures.Count);
 
         /// <summary>
         /// Returns true if the given Animation ID is valid (i.e. An Animation with the same ID exists).
@@ -322,9 +300,7 @@ namespace DPSF
         /// <param name="iAnimationID">The Animation ID to look for</param>
         /// <returns>Returns true if the given Animation ID is valid (i.e. An Animation with the same ID exists).</returns>
         public bool AnimationIDIsValid(int iAnimationID)
-        {
-            return (iAnimationID >= 0 && iAnimationID < mcAnimations.Count);
-        }
+            => (iAnimationID >= 0 && iAnimationID < mcAnimations.Count);
 
         /// <summary>
         /// Get / Set the Current Animation being used. The Animation is started at its beginning.
@@ -333,7 +309,7 @@ namespace DPSF
         /// </summary>
         public int CurrentAnimationID
         {
-            get { return miCurrentAnimationID; }
+            get => miCurrentAnimationID;
             set
             {
                 // Temporarily store the given Animation Index
@@ -357,9 +333,9 @@ namespace DPSF
 
         /// <summary>
         /// Sets the Current Animation being used, as well as what index in the Animation's Picture Rotation
-        /// Order the Animation should start at. 
-        /// <para>NOTE: If the specified Animiation to use is not valid, the Current Animation will not be 
-        /// changed, and if the specified Picture Rotation Order Index is not valid, the Animation will 
+        /// Order the Animation should start at.
+        /// <para>NOTE: If the specified Animiation to use is not valid, the Current Animation will not be
+        /// changed, and if the specified Picture Rotation Order Index is not valid, the Animation will
         /// start from the beginning of the Animation.</para>
         /// </summary>
         /// <param name="iAnimationID">The ID of the Animation to use</param>
@@ -435,18 +411,18 @@ namespace DPSF
         }
 
         /// <summary>
-        /// Get / Set how much Time should elapsed before switching frames in the Current Animation. 
+        /// Get / Set how much Time should elapsed before switching frames in the Current Animation.
         /// <para>NOTE: If no Animation has been set yet, zero will be returned.</para>
         /// </summary>
         public float CurrentAnimationsPictureRotationTime
         {
-            get { return GetAnimationsPictureRotationTime(miCurrentAnimationID); }
-            set { SetAnimationsPictureRotationTime(miCurrentAnimationID, value); }
+            get => GetAnimationsPictureRotationTime(miCurrentAnimationID);
+            set => SetAnimationsPictureRotationTime(miCurrentAnimationID, value);
         }
 
         /// <summary>
-        /// Get / Set the Current Index in the Current Animation's Picture Rotation Order. 
-        /// <para>NOTE: If no Animation has been set yet, Get returns -1, and Set doesn't change anything 
+        /// Get / Set the Current Index in the Current Animation's Picture Rotation Order.
+        /// <para>NOTE: If no Animation has been set yet, Get returns -1, and Set doesn't change anything
         /// (as well as if the specified Index is invalid).</para>
         /// </summary>
         public int CurrentAnimationsPictureRotationOrderIndex
@@ -465,7 +441,6 @@ namespace DPSF
                     return -1;
                 }
             }
-
             set
             {
                 // Temporarily store the given Index to use
@@ -515,7 +490,7 @@ namespace DPSF
 
         /// <summary>
         /// Sets the Number of times the given Animation ID should Play
-        /// (it replays when the end of the Animation is reached). 
+        /// (it replays when the end of the Animation is reached).
         /// Specify a value of zero to have the Animation repeat forever.
         /// <para>NOTE: If the given Animation ID is invalid, no changes are made.</para>
         /// </summary>
@@ -533,15 +508,15 @@ namespace DPSF
 
         /// <summary>
         /// Get / Set the Number of times the Current Animation should Play
-        /// (it replays when the end of the Animation is reached). 
+        /// (it replays when the end of the Animation is reached).
         /// Specify a value of zero to have the Animation repeat forever.
         /// <para>NOTE: If no Animation has been set yet, no changes are made when
         /// Setting, and -1 is returned when Getting.</para>
         /// </summary>
         public int CurrentAnimationsNumberOfTimesToPlay
         {
-            get { return GetAnimationsNumberOfTimesToPlay(miCurrentAnimationID); }
-            set { SetAnimationsNumberOfTimesToPlay(miCurrentAnimationID, value); }
+            get => GetAnimationsNumberOfTimesToPlay(miCurrentAnimationID);
+            set => SetAnimationsNumberOfTimesToPlay(miCurrentAnimationID, value);
         }
 
         /// <summary>
@@ -634,9 +609,7 @@ namespace DPSF
         /// <para>NOTE: If no Animation has been played yet, zero is returned.</para>
         /// </summary>
         public float TimeRequiredToPlayCurrentAnimation
-        {
-            get { return TimeRequiredToPlayAnimation(miCurrentAnimationID); }
-        }
+            => TimeRequiredToPlayAnimation(miCurrentAnimationID);
 
         /// <summary>
         /// Gets the amount of Time (in seconds) required to play the remainder of the Current Animation.
@@ -673,7 +646,7 @@ namespace DPSF
         /// <summary>
         /// Returns the Rectangle representing the Texture Coordinates of the specified Picture.
         /// </summary>
-        /// <param name="iPictureID">The Picture ID of the Picture whose Texture Coordinates 
+        /// <param name="iPictureID">The Picture ID of the Picture whose Texture Coordinates
         /// should be retrieved</param>
         /// <returns>Returns the Rectangle representing the Texture Coordinates of the specified Picture.</returns>
         public Rectangle GetPicturesTextureCoordinates(int iPictureID)
@@ -693,7 +666,7 @@ namespace DPSF
         }
 
         /// <summary>
-        /// Get the Rectangle representing the Texture Coordinates of the Picture 
+        /// Get the Rectangle representing the Texture Coordinates of the Picture
         /// in the Animation that should be displayed at this point in time
         /// </summary>
         public Rectangle CurrentPicturesTextureCoordinates
@@ -706,7 +679,7 @@ namespace DPSF
                 // If there is a Current Animation and it is not Done Playing yet
                 if (CurrentAnimationIsValid && !CurrentAnimationIsDonePlaying)
                 {
-                    // Store the Rectangle 
+                    // Store the Rectangle
                     sRect = mcPictures[mcAnimations[miCurrentAnimationID].CurrentPicturesID].sTextureCoordinates;
                 }
 
@@ -721,8 +694,8 @@ namespace DPSF
         /// </summary>
         public bool Paused
         {
-            get { return mbPaused; }
-            set { mbPaused = value; }
+            get => mbPaused;
+            set => mbPaused = value;
         }
 
         /// <summary>
@@ -757,8 +730,6 @@ namespace DPSF
         /// Get if the Current Animation has been set yet or not
         /// </summary>
         private bool CurrentAnimationIsValid
-        {
-            get { return AnimationIDIsValid(miCurrentAnimationID); }
-        }
+            => AnimationIDIsValid(miCurrentAnimationID);
     }
 }

@@ -160,6 +160,9 @@ namespace DPSF
         public bool IsRepeat { get; set; }
         public float LifeTime { get; set; }
 
+        public ParticleSystemAddedDel Added { get; set; }
+        public ParticleSystemRemovedDel Removed { get; set; }
+
         /// <summary>
         /// Returns if this particle system is dependent on an external Sprite Batch to draw its particles or not.
         /// <para>If false, the particle system will use its own SpriteBatch to draw its particles.</para>

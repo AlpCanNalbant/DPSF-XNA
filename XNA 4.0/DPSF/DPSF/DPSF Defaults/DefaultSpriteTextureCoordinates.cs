@@ -6,27 +6,26 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DPSF
 {
-	/// <summary>
-	/// The Default Sprite with Texture Coordinates Particle System to inherit from, which uses Default Sprite with Texture Coordinates Particles
-	/// </summary>
+    /// <summary>
+    /// The Default Sprite with Texture Coordinates Particle System to inherit from, which uses Default Sprite with Texture Coordinates Particles
+    /// </summary>
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="cGame">Handle to the Game object being used. Pass in null for this
+    /// parameter if not using a Game object.</param>
 #if (WINDOWS)
-	[Serializable]
+    [Serializable]
 #endif
-	public abstract class DefaultSpriteTextureCoordinatesParticleSystem : DPSFDefaultSpriteTextureCoordinatesParticleSystem<DefaultSpriteTextureCoordinatesParticle, DefaultSpriteParticleVertex>
+	public abstract class DefaultSpriteTextureCoordinatesParticleSystem(Game cGame) : DPSFDefaultSpriteTextureCoordinatesParticleSystem<DefaultSpriteTextureCoordinatesParticle, DefaultSpriteParticleVertex>(cGame)
 	{
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="cGame">Handle to the Game object being used. Pass in null for this 
-		/// parameter if not using a Game object.</param>
-		public DefaultSpriteTextureCoordinatesParticleSystem(Game cGame) : base(cGame) { }
-	}
+    }
 
-	/// <summary>
-	/// Particle used by the Default Sprite with Texture Coordinates Particle System
-	/// </summary>
+    /// <summary>
+    /// Particle used by the Default Sprite with Texture Coordinates Particle System
+    /// </summary>
 #if (WINDOWS)
-	[Serializable]
+    [Serializable]
 #endif
 	public class DefaultSpriteTextureCoordinatesParticle : DefaultSpriteParticle
 	{
@@ -85,36 +84,35 @@ namespace DPSF
 		}
 	}
 
-	/// <summary>
-	/// The Default Sprite with Texture Coordinates Particle System class
-	/// </summary>
-	/// <typeparam name="Particle">The Particle class to use</typeparam>
-	/// <typeparam name="Vertex">The Vertex Format to use</typeparam>
+    /// <summary>
+    /// The Default Sprite with Texture Coordinates Particle System class
+    /// </summary>
+    /// <typeparam name="Particle">The Particle class to use</typeparam>
+    /// <typeparam name="Vertex">The Vertex Format to use</typeparam>
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="cGame">Handle to the Game object being used. Pass in null for this
+    /// parameter if not using a Game object.</param>
 #if (WINDOWS)
-	[Serializable]
+    [Serializable]
 #endif
-	public abstract class DPSFDefaultSpriteTextureCoordinatesParticleSystem<Particle, Vertex> : DPSFDefaultSpriteParticleSystem<Particle, Vertex>
+	public abstract class DPSFDefaultSpriteTextureCoordinatesParticleSystem<Particle, Vertex>(Game cGame) : DPSFDefaultSpriteParticleSystem<Particle, Vertex>(cGame)
 		where Particle : DPSFParticle, new()
 		where Vertex : struct, IDPSFParticleVertex
 	{
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="cGame">Handle to the Game object being used. Pass in null for this 
-		/// parameter if not using a Game object.</param>
-		public DPSFDefaultSpriteTextureCoordinatesParticleSystem(Game cGame) : base(cGame) { }
 
-		//===========================================================
-		// Draw Sprite and Overridden Particle System Functions
-		//===========================================================
+        //===========================================================
+        // Draw Sprite and Overridden Particle System Functions
+        //===========================================================
 
-		/// <summary>
-		/// Function to draw a Sprite Particle. This function should be used to draw the given
-		/// Particle with the provided SpriteBatch.
-		/// </summary>
-		/// <param name="Particle">The Particle Sprite to Draw</param>
-		/// <param name="cSpriteBatch">The SpriteBatch to use to doing the Drawing</param>
-		protected override void DrawSprite(DPSFParticle Particle, SpriteBatch cSpriteBatch)
+        /// <summary>
+        /// Function to draw a Sprite Particle. This function should be used to draw the given
+        /// Particle with the provided SpriteBatch.
+        /// </summary>
+        /// <param name="Particle">The Particle Sprite to Draw</param>
+        /// <param name="cSpriteBatch">The SpriteBatch to use to doing the Drawing</param>
+        protected override void DrawSprite(DPSFParticle Particle, SpriteBatch cSpriteBatch)
 		{
 			// Cast the Particle to the type it really is
 			DefaultSpriteTextureCoordinatesParticle cParticle = (DefaultSpriteTextureCoordinatesParticle)Particle;

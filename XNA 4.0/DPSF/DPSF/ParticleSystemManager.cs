@@ -606,6 +606,8 @@ namespace DPSF
 
             // Make sure the Particle System Lists are still sorted
             SortParticleSystemLists();
+
+            cParticleSystemToAdd.Added?.Invoke(this, cParticleSystemToAdd);
         }
 
         /// <summary>
@@ -632,8 +634,11 @@ namespace DPSF
             cParticleSystemToRemove.DrawOrderChanged -= new EventHandler<EventArgs>(ParticleSystem_DrawOrderChanged);
 
             // Remove the Particle System from the Lists
-            mcParticleSystemListSortedByUpdateOrder.Remove(cParticleSystemToRemove);
-            return mcParticleSystemListSortedByDrawOrder.Remove(cParticleSystemToRemove);
+            var res = mcParticleSystemListSortedByUpdateOrder.Remove(cParticleSystemToRemove) & mcParticleSystemListSortedByDrawOrder.Remove(cParticleSystemToRemove);
+
+            cParticleSystemToRemove.Removed?.Invoke(this, cParticleSystemToRemove);
+
+            return res;
         }
 
         /// <summary>

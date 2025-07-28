@@ -280,7 +280,7 @@ namespace DPSF
         }
 
         // The structure variable containing all Initial Properties
-        private readonly CInitialPropertiesForSprite mcInitialProperties = new CInitialPropertiesForSprite();
+        private readonly CInitialPropertiesForSprite mcInitialProperties = new();
 
         /// <summary>
         /// Get the Settings used to specify the Initial Properties of a new Particle.
